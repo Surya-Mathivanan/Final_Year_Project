@@ -4,6 +4,78 @@
 
 The LLM-Powered Cognitive Interview Assistant is a full-stack web application designed to help students and freshers practice HR and technical interviews. The application provides two interview modes: resume-based (where users upload a PDF resume) and role-based (where users select from predefined roles). It uses AI to generate contextual interview questions, evaluate responses, and provide comprehensive feedback to help users improve their interview skills.
 
+## How to Run (Windows)
+
+### Prerequisites
+- Python 3.11 or higher
+- Node.js (version 16 or higher)
+- uv (Python package manager) - Install from https://github.com/astral-sh/uv
+
+### Setup Instructions
+
+1. **Clone or navigate to the project directory**
+   ```
+   cd e:/FINAL YEAR PROJECT/Project
+   ```
+
+2. **Set up Backend**
+   - Install Python dependencies using uv:
+     ```
+     uv sync
+     ```
+   - Configure environment variables:
+     - Copy `.env` file and update the placeholder values:
+       - `SESSION_SECRET`: Generate a secure random string
+       - `GEMINI_API_KEY`: Get from Google AI Studio
+       - `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`: Set up in Google Cloud Console
+       - `DATABASE_URL`: Already configured for PostgreSQL (or use SQLite for local development)
+     - Note: Some values are already filled in the provided `.env` file
+
+3. **Set up Frontend**
+   - Navigate to frontend directory:
+     ```
+     cd frontend
+     ```
+   - Install Node.js dependencies:
+     ```
+     npm install
+     ```
+   - Note: There's a port conflict between Vite (port 5000) and Flask (port 5000). To resolve:
+     - Either change Vite port in `frontend/vite.config.js` to 3000
+     - Or run Flask on a different port (e.g., 8000)
+
+4. **Run the Application**
+   - **Backend** (in project root):
+     ```
+     python backend/app.py
+     ```
+     - Runs on http://localhost:5000
+     - In production, this serves the built frontend
+
+   - **Frontend** (in separate terminal, from project root):
+     ```
+     cd frontend
+     npm run dev
+     ```
+     - If port conflict resolved, runs on http://localhost:3000 (or 5000 if changed)
+     - For production build: `npm run build` then `npm run preview`
+
+5. **Access the Application**
+   - Open your browser and go to http://localhost:5000 (backend serving frontend in production)
+   - Or http://localhost:3000 for development frontend (if running separately)
+
+### Development Notes
+- The backend serves the React frontend in production mode from the `frontend/dist` directory
+- For development, run both servers separately for hot reloading
+- Database: Uses SQLite by default for development (easily switchable to PostgreSQL)
+- API endpoints are available at `/api/*` routes
+
+### Troubleshooting
+- If you encounter port conflicts, change the Vite port in `vite.config.js`
+- Ensure all environment variables are set correctly
+- For database issues, check the `DATABASE_URL` in `.env`
+- If Google OAuth doesn't work, verify the redirect URIs in Google Cloud Console
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
