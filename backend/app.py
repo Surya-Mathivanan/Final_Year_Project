@@ -1,15 +1,19 @@
 # Flask backend for LLM-Powered Cognitive Interview Assistant
+import os
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_required, current_user
-import os
 from werkzeug.utils import secure_filename
 import json
 
+# Load environment variables from root .env
+load_dotenv('../.env')
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'dev-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///interview_assistant.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///interview_assistant.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
@@ -21,7 +25,7 @@ from models import User, InterviewSession, db
 
 # Initialize extensions
 db.init_app(app)
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'google_auth.login'  # type: ignore
@@ -33,7 +37,7 @@ app.register_blueprint(google_auth)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 # Serve React App
 @app.route('/')

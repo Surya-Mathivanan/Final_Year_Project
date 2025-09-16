@@ -12,8 +12,8 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "test-client-id")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "test-client-secret")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Make sure to use this redirect URL. It has to match the one in the whitelist
-DEV_REDIRECT_URL = f'https://{os.environ.get("REPLIT_DEV_DOMAIN", "localhost:5000")}/google_login/callback'
+# Fixed for local development - use HTTP instead of HTTPS
+DEV_REDIRECT_URL = 'http://localhost:5000/google_login/callback'
 
 # ALWAYS display setup instructions to the user:
 print(f"""To make Google authentication work:
@@ -37,9 +37,8 @@ def login():
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        # Replacing http:// with https:// is important as the external
-        # protocol must be https to match the URI whitelisted
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+        # Fixed: Use HTTP for localhost development
+        redirect_uri='http://localhost:5000/google_login/callback',
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -53,10 +52,9 @@ def callback():
 
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
-        # Replacing http:// with https:// is important as the external
-        # protocol must be https to match the URI whitelisted
-        authorization_response=request.url.replace("http://", "https://"),
-        redirect_url=request.base_url.replace("http://", "https://"),
+        # Fixed: Use actual request URL without HTTPS replacement
+        authorization_response=request.url,
+        redirect_url='http://localhost:5000/google_login/callback',
         code=code,
     )
     token_response = requests.post(
@@ -89,11 +87,13 @@ def callback():
 
     login_user(user)
 
-    return redirect("/")
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    return redirect(frontend_url)
 
 
 @google_auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    return redirect(frontend_url)

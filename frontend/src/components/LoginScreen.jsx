@@ -1,8 +1,9 @@
 import React from 'react';
+import { API_BASE_URL } from '../api';
 
 function LoginScreen({ setUser }) {
   const handleGoogleLogin = () => {
-    window.location.href = '/google_login';
+    window.location.href = `${API_BASE_URL}/google_login`;
   };
 
   return (

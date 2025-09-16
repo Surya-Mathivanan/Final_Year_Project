@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import LoadingAnimation from './LoadingAnimation';
+import { getApiUrl } from '../api';
 
 function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
   const [questions, setQuestions] = useState([]);
@@ -42,7 +44,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
   const generateQuestions = async () => {
     try {
-      const response = await fetch('/api/generate-questions', {
+      const response = await fetch(getApiUrl('/api/generate-questions'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -91,7 +93,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
     // Save answer to backend
     try {
-      await fetch('/api/submit-answer', {
+      await fetch(getApiUrl('/api/submit-answer'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -121,8 +123,9 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
   };
 
   const completeInterview = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/complete-interview', {
+      const response = await fetch(getApiUrl('/api/complete-interview'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -134,11 +137,14 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
         setFeedbackData(result.feedback);
         setCurrentView('feedback');
       } else {
-        alert('Failed to complete interview');
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Failed to complete interview: ${errorData.error || 'Unknown error'}`);
+        setLoading(false); // Reset loading on error
       }
     } catch (error) {
       console.error('Error completing interview:', error);
-      alert('Failed to complete interview');
+      alert('Failed to complete interview. Please check your connection and try again.');
+      setLoading(false); // Reset loading on error
     }
   };
 
@@ -166,7 +172,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
   if (loading) {
     return (
       <div className="interview-container">
-        <div className="loading-text">Generating your personalized interview questions...</div>
+        <LoadingAnimation message="Generating your personalized interview questions..." size="large" />
       </div>
     );
   }

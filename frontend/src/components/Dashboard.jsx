@@ -3,18 +3,38 @@ import ResumeUpload from './ResumeUpload';
 import RoleSelection from './RoleSelection';
 import InterviewSession from './InterviewSession';
 import FeedbackDashboard from './FeedbackDashboard';
+import LoadingAnimation from './LoadingAnimation';
+import { getApiUrl } from '../api';
 
 function Dashboard({ user, setUser }) {
   const [currentView, setCurrentView] = useState('mode-selection');
   const [interviewData, setInterviewData] = useState(null);
   const [feedbackData, setFeedbackData] = useState(null);
 
-  const handleLogout = () => {
-    fetch('/logout', {
-      credentials: 'include'
-    }).then(() => {
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(getApiUrl('/logout'), {
+        credentials: 'include'
+      });
+
+      if (response.redirected) {
+        // Backend redirected to frontend, check user status
+        const userResponse = await fetch(getApiUrl('/api/user-info'), {
+          credentials: 'include'
+        });
+
+        if (!userResponse.ok) {
+          setUser(null);
+        }
+      } else {
+        // Direct response, assume logout successful
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout on frontend even if backend call fails
       setUser(null);
-    });
+    }
   };
 
   const renderCurrentView = () => {
@@ -79,7 +99,7 @@ function Dashboard({ user, setUser }) {
         );
       
       default:
-        return <div>Loading...</div>;
+        return <LoadingAnimation message="Loading..." size="medium" />;
     }
   };
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import LoginScreen from './components/LoginScreen';
 import Dashboard from './components/Dashboard';
+import LoadingAnimation from './components/LoadingAnimation';
+import { getApiUrl } from './api';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -8,7 +10,7 @@ function App() {
 
   useEffect(() => {
     // Check if user is already logged in
-    fetch('/api/user-info', {
+    fetch(getApiUrl('/api/user-info'), {
       credentials: 'include'
     })
     .then(response => {
@@ -31,7 +33,7 @@ function App() {
   if (loading) {
     return (
       <div className="loading-container">
-        <div className="loading-text">Loading...</div>
+        <LoadingAnimation message="Initializing application..." size="large" />
       </div>
     );
   }

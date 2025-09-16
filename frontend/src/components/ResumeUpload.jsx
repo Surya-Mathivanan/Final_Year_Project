@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import LoadingAnimation from './LoadingAnimation';
+import { getApiUrl } from '../api';
 
 function ResumeUpload({ setCurrentView, setInterviewData }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -40,7 +42,7 @@ function ResumeUpload({ setCurrentView, setInterviewData }) {
     formData.append('resume', selectedFile);
 
     try {
-      const response = await fetch('/api/upload-resume', {
+      const response = await fetch(getApiUrl('/api/upload-resume'), {
         method: 'POST',
         credentials: 'include',
         body: formData
@@ -70,6 +72,14 @@ function ResumeUpload({ setCurrentView, setInterviewData }) {
       setUploading(false);
     }
   };
+
+  if (uploading) {
+    return (
+      <div className="form-container">
+        <LoadingAnimation message="Processing your resume and extracting keywords..." size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="form-container">
@@ -125,12 +135,12 @@ function ResumeUpload({ setCurrentView, setInterviewData }) {
         </div>
       )}
 
-      <button 
-        className="btn-primary" 
+      <button
+        className="btn-primary"
         onClick={handleUpload}
         disabled={!selectedFile || !difficulty || uploading}
       >
-        {uploading ? 'Processing...' : 'Process Resume & Start Interview'}
+        Process Resume & Start Interview
       </button>
       
       <button 
