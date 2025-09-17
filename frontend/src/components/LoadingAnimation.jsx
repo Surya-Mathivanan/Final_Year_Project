@@ -1,17 +1,22 @@
 import React from 'react';
-import './LoadingAnimation.css';
 
-function LoadingAnimation({ message = "Loading...", size = "medium" }) {
+const Loader = ({ message = "" }) => {
   return (
-    <div className={`loading-animation ${size}`}>
-      <div className="loading-spinner">
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-      </div>
-      <div className="loading-message">{message}</div>
+    <div className="loader-wrapper">
+      <span className="loader-letter">G</span>
+      <span className="loader-letter">e</span>
+      <span className="loader-letter">n</span>
+      <span className="loader-letter">e</span>
+      <span className="loader-letter">r</span>
+      <span className="loader-letter">a</span>
+      <span className="loader-letter">t</span>
+      <span className="loader-letter">i</span>
+      <span className="loader-letter">n</span>
+      <span className="loader-letter">g</span>
+      <div className="loader"></div>
+      {message && <div className="loader-message">{message}</div>}
     </div>
   );
-}
+};
 
-export default LoadingAnimation;
+export default Loader;

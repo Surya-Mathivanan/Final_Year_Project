@@ -1,5 +1,6 @@
 # Flask backend for LLM-Powered Cognitive Interview Assistant
 import os
+import time
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -114,7 +115,7 @@ def generate_questions():
         })
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An error occurred while submitting your answer. Please try again."}), 500
 
 @app.route('/api/submit-answer', methods=['POST'])
 @login_required
@@ -144,7 +145,11 @@ def submit_answer():
         return jsonify({"message": "Answer submitted successfully"})
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        error_msg = str(e).lower()
+        if '503' in error_msg or 'unavailable' in error_msg or 'overloaded' in error_msg:
+            return jsonify({"error": "The AI service is temporarily overloaded. Please try again in a few minutes."}), 503
+        else:
+            return jsonify({"error": "An error occurred while generating questions. Please try again."}), 500
 
 @app.route('/api/complete-interview', methods=['POST'])
 @login_required
@@ -170,7 +175,11 @@ def complete_interview():
         })
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        error_msg = str(e).lower()
+        if '503' in error_msg or 'unavailable' in error_msg or 'overloaded' in error_msg:
+            return jsonify({"error": "The AI service is temporarily overloaded. Please try again in a few minutes."}), 503
+        else:
+            return jsonify({"error": "An error occurred while completing the interview. Please try again."}), 500
 
 @app.route('/api/user-info')
 @login_required
@@ -180,6 +189,13 @@ def user_info():
         "username": current_user.username,
         "email": current_user.email
     })
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    from flask_login import logout_user
+    logout_user()
+    return jsonify({"message": "Logged out successfully"})
 
 # Helper functions
 def extract_resume_keywords(filepath):
@@ -256,37 +272,59 @@ def generate_interview_questions(mode, difficulty, role, keywords):
             Create 3 HR questions, 4 technical questions, and 3 cultural fit questions.
             Return as JSON with categories: hr_questions, technical_questions, cultural_questions"""
         
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        
-        # Parse response and return structured questions
-        questions_text = response.text
-        
-        # For now, return sample questions
-        return {
-            "hr_questions": [
-                "Tell me about yourself and your career goals.",
-                "Why are you interested in this position?",
-                "What are your greatest strengths and weaknesses?"
-            ],
-            "technical_questions": [
-                f"Explain your experience with {keywords[0] if keywords else 'programming'}.",
-                "How do you approach problem-solving in software development?",
-                "Describe a challenging project you've worked on.",
-                "What's your experience with version control systems?"
-            ],
-            "cultural_questions": [
-                "How do you handle working in a team environment?",
-                "Describe a time when you had to adapt to change.",
-                "What motivates you in your work?"
-            ]
-        }
-        
+        # Retry logic for Gemini API calls
+        max_retries = 3
+        retry_delay = 1  # Initial delay in seconds
+
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+
+                # Parse response and return structured questions
+                questions_text = response.text
+
+                # For now, return sample questions
+                return {
+                    "hr_questions": [
+                        "Tell me about yourself and your career goals.",
+                        "Why are you interested in this position?",
+                        "What are your greatest strengths and weaknesses?"
+                    ],
+                    "technical_questions": [
+                        f"Explain your experience with {keywords[0] if keywords else 'programming'}.",
+                        "How do you approach problem-solving in software development?",
+                        "Describe a challenging project you've worked on.",
+                        "What's your experience with version control systems?"
+                    ],
+                    "cultural_questions": [
+                        "How do you handle working in a team environment?",
+                        "Describe a time when you had to adapt to change.",
+                        "What motivates you in your work?"
+                    ]
+                }
+
+            except Exception as e:
+                error_str = str(e).lower()
+                is_retryable = ('503' in error_str or
+                              'unavailable' in error_str or
+                              'overloaded' in error_str)
+
+                if is_retryable and attempt < max_retries - 1:
+                    print(f"Gemini API temporarily unavailable for questions (attempt {attempt + 1}/{max_retries}): {e}")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    print(f"Error generating questions (final attempt): {e}")
+                    break
+
     except Exception as e:
         print(f"Error generating questions: {e}")
-        # Return default questions as fallback
+
+    # Return default questions as fallback
         return {
             "hr_questions": ["Tell me about yourself.", "Why should we hire you?", "What are your career goals?"],
             "technical_questions": ["Explain your programming experience.", "How do you debug code?", "Describe your development process.", "What's your favorite programming language and why?"],
@@ -351,22 +389,39 @@ def generate_interview_feedback(session):
         Be constructive, specific, and encouraging while providing actionable feedback.
         """
         
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=analysis_prompt
-            )
-            
-            if response.text:
-                # Try to parse the JSON response
-                import re
-                json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-                if json_match:
-                    feedback_data = json.loads(json_match.group())
-                    return feedback_data
-            
-        except Exception as gemini_error:
-            print(f"Gemini API error: {gemini_error}")
+        # Retry logic for Gemini API calls
+        max_retries = 3
+        retry_delay = 1  # Initial delay in seconds
+
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=analysis_prompt
+                )
+
+                if response.text:
+                    # Try to parse the JSON response
+                    import re
+                    json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+                    if json_match:
+                        feedback_data = json.loads(json_match.group())
+                        return feedback_data
+
+            except Exception as gemini_error:
+                error_str = str(gemini_error).lower()
+                is_retryable = ('503' in error_str or
+                              'unavailable' in error_str or
+                              'overloaded' in error_str)
+
+                if is_retryable and attempt < max_retries - 1:
+                    print(f"Gemini API temporarily unavailable (attempt {attempt + 1}/{max_retries}): {gemini_error}")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    print(f"Gemini API error (final attempt): {gemini_error}")
+                    break
         
         # Fallback: Generate structured feedback based on answer quality
         feedback = analyze_answers_locally(interview_data, session)

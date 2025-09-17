@@ -171,17 +171,22 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
   if (loading) {
     return (
-      <div className="interview-container">
-        <LoadingAnimation message="Generating your personalized interview questions..." size="large" />
+      <div className="dashboard-main">
+        <LoadingAnimation/>
+
+        {/* ========================================================================================================== */}
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="interview-container">
-        <div className="section-title">Failed to generate questions</div>
-        <button className="btn-secondary" onClick={() => setCurrentView('mode-selection')}>
+      <div className="dashboard-main">
+        <div className="page-header">
+          <h1 className="page-title">Unable to Generate Questions</h1>
+          <p className="page-subtitle">Please try again or contact support</p>
+        </div>
+        <button className="btn btn-secondary" onClick={() => setCurrentView('mode-selection')}>
           Back to Mode Selection
         </button>
       </div>
@@ -192,50 +197,80 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="interview-container">
-      <div className="progress-indicator">
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+    <div className="dashboard-main">
+      <div className="interview-layout">
+        <div className="progress-section">
+          <div className="progress-header">
+            <span className="progress-label">Interview Progress</span>
+            <span className="progress-counter">
+              {currentQuestionIndex + 1} of {questions.length}
+            </span>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+          </div>
         </div>
-        <div className="progress-text">
-          Question {currentQuestionIndex + 1} of {questions.length}
+
+        <div className="question-section">
+          <div className="question-header">
+            <span className="question-badge">{currentQuestion.category}</span>
+          </div>
+          <div className="question-text">{currentQuestion.text}</div>
         </div>
-      </div>
 
-      <div className="question-card">
-        <div className="question-category">{currentQuestion.category}</div>
-        <div className="question-text">{currentQuestion.text}</div>
-      </div>
+        <div className="answer-section">
+          <textarea
+            className="answer-textarea"
+            value={currentAnswer}
+            onChange={(e) => setCurrentAnswer(e.target.value)}
+            placeholder={currentAnswer.trim() ? "" : "Share your thoughts here... Take your time to craft a thoughtful response. You can also use voice recording if available."}
+          />
 
-      <div className="answer-section">
-        <textarea
-          className="answer-textarea"
-          value={currentAnswer}
-          onChange={(e) => setCurrentAnswer(e.target.value)}
-          placeholder="Type your answer here or use voice recording..."
-        />
+          {speechSupported && (
+            <div className="voice-controls">
+              <button
+                className={`record-button ${isRecording ? 'recording' : ''}`}
+                onClick={isRecording ? stopRecording : startRecording}
+              >
+                {isRecording ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="6" y="6" width="12" height="12" rx="2"/>
+                    </svg>
+                    Stop Recording
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                      <line x1="12" y1="19" x2="12" y2="23"/>
+                      <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                    Start Recording
+                  </>
+                )}
+              </button>
+            </div>
+          )}
 
-        {speechSupported && (
-          <div className="voice-controls">
-            <button
-              className={`record-btn ${isRecording ? 'recording' : ''}`}
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              {isRecording ? '🛑 Stop Recording' : '🎤 Start Recording'}
+          <div className="interview-actions">
+            {currentQuestionIndex > 0 && (
+              <button className="btn btn-secondary" onClick={goToPreviousQuestion}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15,18 9,12 15,6"/>
+                </svg>
+                Previous
+              </button>
+            )}
+            
+            <button className="btn btn-primary" onClick={handleAnswerSubmit}>
+              {currentQuestionIndex === questions.length - 1 ? 'Complete Interview' : 'Next Question'}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="9,18 15,12 9,6"/>
+              </svg>
             </button>
           </div>
-        )}
-
-        <div className="interview-controls">
-          {currentQuestionIndex > 0 && (
-            <button className="btn-secondary" onClick={goToPreviousQuestion}>
-              Previous Question
-            </button>
-          )}
-          
-          <button className="btn-primary" onClick={handleAnswerSubmit}>
-            {currentQuestionIndex === questions.length - 1 ? 'Complete Interview' : 'Next Question'}
-          </button>
         </div>
       </div>
     </div>

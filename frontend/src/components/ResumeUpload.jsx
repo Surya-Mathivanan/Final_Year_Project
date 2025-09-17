@@ -75,80 +75,87 @@ function ResumeUpload({ setCurrentView, setInterviewData }) {
 
   if (uploading) {
     return (
-      <div className="form-container">
+      <div className="dashboard-main">
         <LoadingAnimation message="Processing your resume and extracting keywords..." size="large" />
       </div>
     );
   }
 
   return (
-    <div className="form-container">
-      <h2 className="section-title">Upload Your Resume</h2>
+    <div className="dashboard-main">
+      <div className="page-header">
+        <h1 className="page-title">Upload Your Resume</h1>
+        <p className="page-subtitle">Share your professional story for personalized interview questions</p>
+      </div>
       
-      <div className="form-group">
-        <label className="form-label">Upload PDF Resume</label>
-        <div 
-          className="file-upload"
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById('resume-upload').click()}
-        >
-          <input
-            type="file"
-            id="resume-upload"
-            accept=".pdf"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
-          <div className="file-upload-text">
-            {selectedFile ? (
-              <span>✓ {selectedFile.name}</span>
-            ) : (
-              <span>Click to upload your PDF resume or drag and drop</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="form-group">
-        <label className="form-label">Difficulty Level</label>
-        <select 
-          className="form-select" 
-          value={difficulty} 
-          onChange={(e) => setDifficulty(e.target.value)}
-        >
-          <option value="">Select difficulty...</option>
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
-        </select>
-      </div>
-
-      {keywords.length > 0 && (
+      <div className="form-section">
         <div className="form-group">
-          <label className="form-label">Extracted Keywords</label>
-          <div className="keywords-display">
-            {keywords.map((keyword, index) => (
-              <span key={index} className="keyword-tag">{keyword}</span>
-            ))}
+          <label className="form-label">Resume Document</label>
+          <div 
+            className={`file-upload-area ${selectedFile ? 'has-file' : ''}`}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById('resume-upload').click()}
+          >
+            <input
+              type="file"
+              id="resume-upload"
+              accept=".pdf"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+            <div className="upload-icon">📄</div>
+            <div className="upload-text">
+              {selectedFile ? selectedFile.name : 'Drop your PDF resume here or click to browse'}
+            </div>
+            <div className="upload-hint">PDF files only, max 10MB</div>
           </div>
         </div>
-      )}
 
-      <button
-        className="btn-primary"
-        onClick={handleUpload}
-        disabled={!selectedFile || !difficulty || uploading}
-      >
-        Process Resume & Start Interview
-      </button>
-      
-      <button 
-        className="btn-secondary" 
-        onClick={() => setCurrentView('mode-selection')}
-      >
-        Back to Mode Selection
-      </button>
+        <div className="form-group">
+          <label className="form-label">Interview Complexity</label>
+          <select 
+            className="form-select" 
+            value={difficulty} 
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            <option value="">Choose your challenge level...</option>
+            <option value="beginner">Beginner - Entry level questions</option>
+            <option value="intermediate">Intermediate - Mid-level challenges</option>
+            <option value="advanced">Advanced - Senior level scenarios</option>
+          </select>
+        </div>
+
+        {keywords.length > 0 && (
+          <div className="form-group">
+            <label className="form-label">Key Skills Identified</label>
+            <div className="keywords-grid">
+              {keywords.map((keyword, index) => (
+                <span key={index} className="keyword-tag">{keyword}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="interview-actions">
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setCurrentView('mode-selection')}
+          >
+            ← Back
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleUpload}
+            disabled={!selectedFile || !difficulty || uploading}
+          >
+            {uploading ? 'Processing...' : 'Start Interview'}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -22,32 +22,35 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
 
   return (
     <div className="feedback-container">
-      <h2 className="feedback-title">Interview Feedback & Results</h2>
+      <h2 className="feedback-title">Your Interview Performance</h2>
       
       <div className="score-overview">
         <div className="score-card">
-          <div className="score-label">Overall Score</div>
+          <div className="score-label">Overall Performance</div>
           <div className="score-value">{overall_score}%</div>
         </div>
         
         <div className="score-card">
-          <div className="score-label">HR Performance</div>
+          <div className="score-label">Behavioral Skills</div>
           <div className="score-value">{category_scores.hr_performance || 0}%</div>
         </div>
         
         <div className="score-card">
-          <div className="score-label">Technical Performance</div>
+          <div className="score-label">Technical Expertise</div>
           <div className="score-value">{category_scores.technical_performance || 0}%</div>
         </div>
         
         <div className="score-card">
-          <div className="score-label">Cultural Fit</div>
+          <div className="score-label">Culture Alignment</div>
           <div className="score-value">{category_scores.cultural_fit || 0}%</div>
         </div>
       </div>
 
       <div className="feedback-section">
-        <h3 className="feedback-section-title">🌟 Your Strengths</h3>
+        <h3 className="feedback-section-title">
+          <span>🌟</span>
+          What You Excelled At
+        </h3>
         <ul className="feedback-list">
           {strengths.length > 0 ? (
             strengths.map((strength, index) => (
@@ -60,7 +63,10 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
       </div>
 
       <div className="feedback-section">
-        <h3 className="feedback-section-title">🎯 Areas for Improvement</h3>
+        <h3 className="feedback-section-title">
+          <span>🎯</span>
+          Growth Opportunities
+        </h3>
         <ul className="feedback-list">
           {improvements.length > 0 ? (
             improvements.map((improvement, index) => (
@@ -73,7 +79,10 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
       </div>
 
       <div className="feedback-section">
-        <h3 className="feedback-section-title">📝 Detailed Feedback</h3>
+        <h3 className="feedback-section-title">
+          <span>📝</span>
+          Detailed Analysis
+        </h3>
         <p>{detailed_feedback || 'Great job completing the interview! Keep practicing to improve your skills.'}</p>
       </div>
 
@@ -82,14 +91,14 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
           className="btn-primary" 
           onClick={() => setCurrentView('mode-selection')}
         >
-          Start New Interview
+          Take Another Interview
         </button>
         
         <button 
           className="btn-secondary" 
           onClick={() => window.print()}
         >
-          Print Results
+          Save Results
         </button>
       </div>
     </div>

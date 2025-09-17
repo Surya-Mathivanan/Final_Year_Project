@@ -34,53 +34,62 @@ function RoleSelection({ setCurrentView, setInterviewData }) {
   };
 
   return (
-    <div className="form-container">
-      <h2 className="section-title">Select Interview Role</h2>
-      
-      <div className="form-group">
-        <label className="form-label">Job Role</label>
-        <select 
-          className="form-select"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-        >
-          <option value="">Select a role...</option>
-          {roles.map(roleOption => (
-            <option key={roleOption.value} value={roleOption.value}>
-              {roleOption.label}
-            </option>
-          ))}
-        </select>
+    <div className="dashboard-main">
+      <div className="page-header">
+        <h1 className="page-title">Choose Your Role</h1>
+        <p className="page-subtitle">Select the position you're preparing for</p>
       </div>
       
-      <div className="form-group">
-        <label className="form-label">Difficulty Level</label>
-        <select 
-          className="form-select"
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-        >
-          <option value="">Select difficulty...</option>
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
-        </select>
+      <div className="form-section">
+        <div className="form-group">
+          <label className="form-label">Target Position</label>
+          <select 
+            className="form-select"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value="">What role are you preparing for?</option>
+            {roles.map(roleOption => (
+              <option key={roleOption.value} value={roleOption.value}>
+                {roleOption.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label className="form-label">Experience Level</label>
+          <select 
+            className="form-select"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            <option value="">What's your experience level?</option>
+            <option value="beginner">Beginner - Just starting out</option>
+            <option value="intermediate">Intermediate - Some experience</option>
+            <option value="advanced">Advanced - Senior level</option>
+          </select>
+        </div>
+        
+        <div className="interview-actions">
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setCurrentView('mode-selection')}
+          >
+            ← Back
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleStartInterview}
+            disabled={!role || !difficulty}
+          >
+            Start Interview
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      
-      <button 
-        className="btn-primary" 
-        onClick={handleStartInterview}
-        disabled={!role || !difficulty}
-      >
-        Start Interview
-      </button>
-      
-      <button 
-        className="btn-secondary" 
-        onClick={() => setCurrentView('mode-selection')}
-      >
-        Back to Mode Selection
-      </button>
     </div>
   );
 }
