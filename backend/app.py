@@ -84,17 +84,38 @@ def upload_resume():
     
     if file and file.filename and file.filename.lower().endswith('.pdf'):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        # Add user ID to filename to avoid conflicts
+        unique_filename = f"{current_user.id}_{int(time.time())}_{filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
         
-        # Extract keywords from PDF (placeholder for now)
-        keywords = extract_resume_keywords(filepath)
-        
-        return jsonify({
-            "message": "Resume uploaded successfully",
-            "filename": filename,
-            "keywords": keywords
-        })
+        try:
+            # Use new resume analyzer
+            from resume_analyzer import analyze_resume_file
+            analysis = analyze_resume_file(filepath, os.environ.get('GEMINI_API_KEY'))
+            
+            return jsonify({
+                "message": "Resume uploaded and analyzed successfully",
+                "filename": unique_filename,
+                "analysis": {
+                    "technical_skills": analysis['technical_skills'][:10],  # Top 10 for display
+                    "soft_skills": analysis['soft_skills'][:8],
+                    "projects": analysis['projects'][:5],
+                    "experience_level": analysis['experience_level'],
+                    "summary": analysis['summary']
+                },
+                "keywords": analysis['keywords']  # For backward compatibility
+            })
+        except Exception as e:
+            print(f"Error analyzing resume: {e}")
+            # Fallback to basic keyword extraction
+            keywords = extract_resume_keywords(filepath)
+            return jsonify({
+                "message": "Resume uploaded successfully",
+                "filename": unique_filename,
+                "keywords": keywords,
+                "note": "Basic analysis used due to processing error"
+            })
     
     return jsonify({"error": "Invalid file format. Please upload a PDF."}), 400
 
@@ -107,19 +128,44 @@ def generate_questions():
     role = data.get('role', '')
     keywords = data.get('keywords', [])
     
+    # Get resume analysis data for resume mode
+    resume_filename = data.get('filename', '')
+    analysis = data.get('analysis', {})
+    
     try:
-        questions = generate_interview_questions(mode, difficulty, role, keywords)
-        
-        # Create interview session
+        # Create interview session first
         session = InterviewSession()
         session.user_id = current_user.id
         session.mode = mode
         session.difficulty = difficulty  
         session.role = role
-        session.questions = json.dumps(questions)
         session.status = 'active'
-        db.session.add(session)
-        db.session.commit()
+        
+        # Store resume analysis if in resume mode
+        if mode == 'resume' and analysis:
+            session.resume_filename = resume_filename
+            session.technical_skills = json.dumps(analysis.get('technical_skills', []))
+            session.soft_skills = json.dumps(analysis.get('soft_skills', []))
+            session.projects = json.dumps(analysis.get('projects', []))
+            session.experience_level = analysis.get('experience_level', 'entry')
+            session.resume_summary = analysis.get('summary', '')
+        
+        # Generate questions based on mode
+        if mode == 'resume' and analysis:
+            # Use new question generator for resume-based interviews
+            from gemini import client
+            from question_generator import QuestionGenerator
+            
+            qg = QuestionGenerator(client)
+            questions = qg.generate_resume_based_questions(
+                technical_skills=analysis.get('technical_skills', []),
+                soft_skills=analysis.get('soft_skills', []),
+                projects=analysis.get('projects', []),
+                difficulty=difficulty
+            )
+        else:
+            # Use existing logic for role-based interviews
+            questions = generate_interview_questions(mode, difficulty, role, keywords)
         
         # Check if questions were generated successfully
         if "error" in questions:
@@ -127,6 +173,11 @@ def generate_questions():
                 "error": questions["error"],
                 "details": questions.get("details", "Unknown error")
             }), 500
+        
+        # Store questions and commit
+        session.questions = json.dumps(questions)
+        db.session.add(session)
+        db.session.commit()
 
         return jsonify({
             "session_id": session.id,
@@ -134,7 +185,8 @@ def generate_questions():
         })
         
     except Exception as e:
-        return jsonify({"error": "An error occurred while submitting your answer. Please try again."}), 500
+        print(f"Error generating questions: {e}")
+        return jsonify({"error": "An error occurred while generating questions. Please try again."}), 500
 
 @app.route('/api/submit-answer', methods=['POST'])
 @login_required

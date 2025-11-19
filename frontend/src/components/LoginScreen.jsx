@@ -9,29 +9,16 @@ function LoginScreen({ setUser }) {
   return (
     <div className="login-screen">
       <div className="login-container">
-        {/* Left Panel - Login Form */}
+        {/* Left Panel - Minimal Login Form */}
         <div className="login-panel">
           <div className="login-content">
-            <div className="brand-section">
-              {/* <div className="brand-logo">
-                <div className="logo-icon">
-                  <div className="logo-line"></div>
-                  <div className="logo-line"></div>
-                  <div className="logo-line"></div>
-                </div>
-                <span className="brand-text">InterviewAI</span>
-              </div> */}
-            </div>
-
             <div className="welcome-section">
               <h1 className="welcome-title">
                 LLM-Powered Cognitive Interview Assistant
               </h1>
-            </div>
-
-            <div className="value-prop">
-              <div className="check-icon">✓</div>
-              <span>It's free - no credit card needed</span>
+              <p className="welcome-subtitle">
+                Master your interview skills with AI-powered personalized feedback
+              </p>
             </div>
 
             <div className="login-options">
@@ -49,65 +36,74 @@ function LoginScreen({ setUser }) {
                 </svg>
                 Continue with Google
               </button>
-
-              <div className="divider">
-                <div className="divider-line"></div>
-              </div>
             </div>
 
-            <div className="privacy-section">
-              <div className="privacy-check">✓</div>
-              <span className="privacy-text">
-                We respect your privacy and won't share your information with
-                anyone. For details, see our{" "}
-                <a href="#" className="privacy-link">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="privacy-link">
-                  Privacy Policy
+            {/* Footer Links */}
+            <div className="login-footer">
+              <p className="footer-text">
+                By continuing, you agree to our{' '}
+                <a href="/terms" className="footer-link">Terms of Service</a>
+                {' '}and{' '}
+                <a href="/privacy" className="footer-link">Privacy Policy</a>
+              </p>
+              <p className="creators-text">
+                Created by{' '}
+                <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="creator-link">
+                  Team CogniView
                 </a>
-                .
-              </span>
-            </div>
-
-            <div className="compliance-badges">
-              <div className="badge">GDPR Compliant</div>
-              <div className="badge">CPRA Compliant</div>
-              <div className="badge">AICPA SOC2</div>
-              <div className="badge">ISO 27001</div>
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Right Panel - Image/Visual */}
+        {/* Right Panel - Interactive Content */}
         <div className="visual-panel">
           <div className="visual-content">
-            <div className="trust-overlay">
-              <div className="trust-header">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            {/* Main Heading with Icon */}
+            <div className="visual-heading">
+              <div className="ai-icon-animated">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
                 </svg>
-                <span>Trusted by Leading Companies</span>
               </div>
-              <div className="trust-quote">
-                "Trusted by fortune 50 companies and over 10 million candidates
-                in 84 countries"
+              <h2 className="visual-main-title">Practice. Learn. Excel.</h2>
+              <p className="visual-subtitle">Your AI-powered interview preparation platform</p>
+            </div>
+
+            {/* Interactive Feature Cards */}
+            <div className="feature-cards-grid">
+              <div className="feature-card-interactive">
+                <div className="feature-card-icon">🎯</div>
+                <h3>Smart Question Generation</h3>
+                <p>AI analyzes your resume and generates targeted questions for your role</p>
+              </div>
+              
+              <div className="feature-card-interactive">
+                <div className="feature-card-icon">💬</div>
+                <h3>Real-time Feedback</h3>
+                <p>Get instant AI-powered feedback on your responses and improve continuously</p>
+              </div>
+              
+              <div className="feature-card-interactive">
+                <div className="feature-card-icon">📊</div>
+                <h3>Progress Tracking</h3>
+                <p>Track your performance across multiple categories and difficulty levels</p>
+              </div>
+              
+              <div className="feature-card-interactive">
+                <div className="feature-card-icon">🚀</div>
+                <h3>Interview Ready</h3>
+                <p>Build confidence with practice sessions tailored to your target companies</p>
               </div>
             </div>
 
-            <div className="partner-logos">
-              <div className="logo-item">Meta</div>
-              <div className="logo-item">Google</div>
-              <div className="logo-item">Microsoft</div>
-              <div className="logo-item">Amazon</div>
-              <div className="logo-item">Tesla</div>
-              <div className="logo-item">Adobe</div>
+           
+            
+
+            {/* Powered By Section */}
+            <div className="powered-by-section">
+              <span className="powered-badge">⚡ Powered by Google Gemini AI</span>
             </div>
           </div>
         </div>

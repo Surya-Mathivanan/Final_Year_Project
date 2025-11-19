@@ -23,6 +23,15 @@ class InterviewSession(db.Model):
     mode = db.Column(db.String(20), nullable=False)  # 'resume' or 'role'
     difficulty = db.Column(db.String(20), nullable=False)  # 'beginner', 'intermediate', 'advanced'
     role = db.Column(db.String(100))  # For role-based mode
+    
+    # Resume analysis data (for resume-based mode)
+    resume_filename = db.Column(db.String(255))  # Original resume filename
+    technical_skills = db.Column(db.Text)  # JSON array of technical skills
+    soft_skills = db.Column(db.Text)  # JSON array of soft skills
+    projects = db.Column(db.Text)  # JSON array of projects
+    experience_level = db.Column(db.String(20))  # 'entry', 'mid', 'senior'
+    resume_summary = db.Column(db.Text)  # AI-generated summary of resume
+    
     questions = db.Column(db.Text)  # JSON string of questions
     answers = db.Column(db.Text)  # JSON string of answers
     feedback = db.Column(db.Text)  # JSON string of feedback
