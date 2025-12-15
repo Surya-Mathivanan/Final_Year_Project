@@ -4,10 +4,17 @@ import { getApiUrl } from '../api';
 const FaceDetectionWidget = () => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const imgRef = React.useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Stop video stream when component unmounts
+      if (imgRef.current) {
+        imgRef.current.src = '';
+      }
+    };
   }, []);
 
   return (
@@ -70,6 +77,7 @@ const FaceDetectionWidget = () => {
         
         {!hasError && (
           <img
+            ref={imgRef}
             src={getApiUrl('/api/video-feed')}
             alt="Face Detection Stream"
             style={{

@@ -1,5 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../api';
+import ThemeToggle from './ThemeToggle';
 
 function LoginScreen({ setUser }) {
   const handleGoogleLogin = () => {
@@ -22,7 +24,7 @@ function LoginScreen({ setUser }) {
             </div>
 
             <div className="login-options">
-              <button className="google-login-btn" onClick={handleGoogleLogin}>
+              <button className="google-login-btn gradient-btn" onClick={handleGoogleLogin}>
                 <svg
                   width="20"
                   height="20"
@@ -42,16 +44,19 @@ function LoginScreen({ setUser }) {
             <div className="login-footer">
               <p className="footer-text">
                 By continuing, you agree to our{' '}
-                <a href="/terms" className="footer-link">Terms of Service</a>
+                <Link to="/about" className="footer-link">Terms of Service</Link>
                 {' '}and{' '}
-                <a href="/privacy" className="footer-link">Privacy Policy</a>
+                <Link to="/privacy" className="footer-link">Privacy Policy</Link>
               </p>
               <p className="creators-text">
                 Created by{' '}
-                <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="creator-link">
+                <Link to="/about" className="creator-link">
                   Team CogniView
-                </a>
+                </Link>
               </p>
+              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>

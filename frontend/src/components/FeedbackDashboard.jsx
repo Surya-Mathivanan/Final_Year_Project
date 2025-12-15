@@ -54,7 +54,7 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
     return (
       <div className="feedback-container">
         <div className="section-title">No feedback data available</div>
-        <button className="btn btn-secondary" onClick={() => setCurrentView('mode-selection')}>
+        <button className="btn btn-secondary gradient-btn" onClick={() => setCurrentView('mode-selection')}>
           Start New Interview
         </button>
       </div>
@@ -178,7 +178,7 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
 
       <div className="feedback-actions">
         <button 
-          className="btn btn-primary" 
+          className="btn btn-primary gradient-btn" 
           onClick={() => setCurrentView('mode-selection')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -188,7 +188,7 @@ function FeedbackDashboard({ feedbackData, setCurrentView }) {
         </button>
         
         <button 
-          className="btn btn-secondary" 
+          className="btn btn-secondary gradient-btn" 
           onClick={() => window.print()}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

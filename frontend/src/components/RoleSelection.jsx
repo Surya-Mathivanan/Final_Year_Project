@@ -73,13 +73,13 @@ function RoleSelection({ setCurrentView, setInterviewData }) {
         
         <div className="interview-actions">
           <button 
-            className="btn btn-secondary" 
+            className="btn btn-secondary gradient-btn" 
             onClick={() => setCurrentView('mode-selection')}
           >
             ← Back
           </button>
           <button 
-            className="btn btn-primary" 
+            className="btn btn-primary gradient-btn" 
             onClick={handleStartInterview}
             disabled={!role || !difficulty}
           >

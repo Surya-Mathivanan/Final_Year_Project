@@ -221,7 +221,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
           <h1 className="page-title">Unable to Generate Questions</h1>
           <p className="page-subtitle">Please try again or contact support</p>
         </div>
-        <button className="btn btn-secondary" onClick={() => setCurrentView('mode-selection')}>
+        <button className="btn btn-secondary gradient-btn" onClick={() => setCurrentView('mode-selection')}>
           Back to Mode Selection
         </button>
       </div>
@@ -292,7 +292,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
           <div className="interview-actions">
             {currentQuestionIndex > 0 && (
-              <button className="btn btn-secondary" onClick={goToPreviousQuestion}>
+              <button className="btn btn-secondary gradient-btn" onClick={goToPreviousQuestion}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="15,18 9,12 15,6"/>
                 </svg>
@@ -300,7 +300,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
               </button>
             )}
             
-            <button className="btn btn-primary" onClick={handleAnswerSubmit}>
+            <button className="btn btn-primary gradient-btn" onClick={handleAnswerSubmit}>
               {currentQuestionIndex === questions.length - 1 ? 'Complete Interview' : 'Next Question'}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="9,18 15,12 9,6"/>
