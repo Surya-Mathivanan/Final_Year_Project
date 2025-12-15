@@ -268,6 +268,22 @@ def user_info():
         "email": current_user.email
     })
 
+@app.route('/api/video-feed')
+@login_required
+def video_feed():
+    """Video streaming route for face detection"""
+    try:
+        from face_detector import detector
+        from flask import Response
+        
+        return Response(
+            detector.generate_frames(),
+            mimetype='multipart/x-mixed-replace; boundary=frame'
+        )
+    except Exception as e:
+        print(f"Error in video feed: {e}")
+        return jsonify({"error": "Video feed failed"}), 500
+
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def logout():

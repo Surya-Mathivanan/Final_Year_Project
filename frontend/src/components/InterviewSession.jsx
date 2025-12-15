@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LoadingAnimation from './LoadingAnimation';
+import FaceDetectionWidget from './FaceDetectionWidget';
 import { getApiUrl } from '../api';
 
 function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
@@ -12,6 +13,13 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef(null);
+  const baseAnswerRef = useRef('');
+  const isRecordingRef = useRef(false);
+  const latestAnswerRef = useRef(currentAnswer);
+
+  useEffect(() => {
+    latestAnswerRef.current = currentAnswer;
+  }, [currentAnswer]);
 
   useEffect(() => {
     // Check for speech recognition support
@@ -23,19 +31,39 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
       recognitionRef.current.interimResults = true;
       
       recognitionRef.current.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
+        let fullTranscriptSinceStart = '';
+        for (let i = 0; i < event.results.length; i++) {
+           fullTranscriptSinceStart += event.results[i][0].transcript;
         }
-        if (finalTranscript) {
-          setCurrentAnswer(prev => prev + finalTranscript);
+
+        // Combine base (previously saved) + new transcript
+        const newTotalAccount = baseAnswerRef.current + (baseAnswerRef.current && fullTranscriptSinceStart ? ' ' : '') + fullTranscriptSinceStart;
+        setCurrentAnswer(newTotalAccount);
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.warn("Speech recognition error", event.error);
+        if (event.error === 'not-allowed') {
+          setIsRecording(false);
+          isRecordingRef.current = false;
         }
       };
 
       recognitionRef.current.onend = () => {
-        setIsRecording(false);
+        if (isRecordingRef.current) {
+          // If we still want to be recording, restart!
+          // But first, update baseAnswerRef to the latest full answer so next session appends to it
+          baseAnswerRef.current = latestAnswerRef.current;
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.error("Failed to restart speech recognition", e);
+            setIsRecording(false);
+            isRecordingRef.current = false;
+          }
+        } else {
+          setIsRecording(false);
+        }
       };
     }
 
@@ -150,15 +178,22 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
   const startRecording = () => {
     if (recognitionRef.current && speechSupported) {
+      baseAnswerRef.current = currentAnswer; // Save current text as base
+      isRecordingRef.current = true;
       setIsRecording(true);
-      recognitionRef.current.start();
+      try {
+        recognitionRef.current.start();
+      } catch (e) {
+        console.error("Error starting speech recognition:", e);
+      }
     }
   };
 
   const stopRecording = () => {
     if (recognitionRef.current && isRecording) {
-      recognitionRef.current.stop();
+      isRecordingRef.current = false; // Signal intent to stop
       setIsRecording(false);
+      recognitionRef.current.stop();
     }
   };
 
@@ -198,6 +233,7 @@ function InterviewSession({ interviewData, setCurrentView, setFeedbackData }) {
 
   return (
     <div className="dashboard-main">
+      <FaceDetectionWidget />
       <div className="interview-layout">
         <div className="progress-section">
           <div className="progress-header">
