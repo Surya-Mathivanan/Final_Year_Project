@@ -5,40 +5,42 @@ import { useNavigate } from 'react-router-dom';
 function AboutTeam() {
   const navigate = useNavigate();
 
-  const teamMembers = [
+const teamMembers = [
     {
-      name: "Surya M",
-      college: "Sri Sairam Engineering College",
-      role: "Full Stack Developer",
-      photo: "https://via.placeholder.com/150",
-      github: "https://github.com/Surya-Mathivanan",
-      linkedin: "https://linkedin.com/in/suryamurali"
-    },
-    {
-      name: "Team Member 2",
-      college: "Sri Sairam Engineering College",
-      role: "AI/ML Engineer",
-      photo: "https://via.placeholder.com/150",
-      github: "https://github.com/member2",
-      linkedin: "https://linkedin.com/in/member2"
-    },
-    {
-      name: "Team Member 3",
-      college: "Sri Sairam Engineering College",
-      role: "Backend Developer",
-      photo: "https://via.placeholder.com/150",
-      github: "https://github.com/member3",
-      linkedin: "https://linkedin.com/in/member3"
-    },
-    {
-      name: "Team Member 4",
-      college: "Sri Sairam Engineering College",
-      role: "Frontend Developer",
-      photo: "https://via.placeholder.com/150",
-      github: "https://github.com/member4",
-      linkedin: "https://linkedin.com/in/member4"
-    }
-  ];
+    name: "Dr. B. Padmapriya",
+    college: "KIT – Kalaignarkarunanidhi Institute of Technology, Coimbatore",
+    role: "Project Guide | Associate Professor, AI & DS",
+    photo: "https://media.licdn.com/dms/image/v2/D5603AQGQhBE8aUlRgg/profile-displayphoto-shrink_200_200/B56ZTwJyoOGQAY-/0/1739195887499?e=1767225600&v=beta&t=fV_1KuM7JHQT7YlWS42du9Z2NOreCp5G63sKvdR9Nmg",
+    github: "https://www.linkedin.com/in/padma-priya-437073253/",
+    linkedin: "https://www.linkedin.com/in/padma-priya-437073253/"
+  },
+  {
+    name: "Sameetha D",
+    college: "KIT – Kalaignarkarunanidhi Institute of Technology, Coimbatore",
+    role: "Backend Developer",
+    photo: "https://media.licdn.com/dms/image/v2/D5603AQGszv1iL79Kfg/profile-displayphoto-shrink_200_200/B56ZYe8fWNGsAY-/0/1744275896782?e=1767225600&v=beta&t=Hb_mk4ZY8nyvjNf7DHF7Szr_lejJuGJv97KwjuAj85A",
+    github: "https://github.com/sameethad",
+    linkedin: "https://www.linkedin.com/in/sameetha-devaraj-7589b9265/"
+  },
+  {
+    name: "Surya M",
+    college: "KIT – Kalaignarkarunanidhi Institute of Technology, Coimbatore",
+    role: "Full Stack Developer",
+    photo: "https://avatars.githubusercontent.com/u/153536787?v=4",
+    github: "https://github.com/Surya-Mathivanan",
+    linkedin: "https://www.linkedin.com/in/surya--mathivanan/"
+  },
+  {
+    name: "Deepan Prasath S",
+    college: "KIT – Kalaignarkarunanidhi Institute of Technology, Coimbatore",
+    role: "AI / ML Engineer",
+    photo: "https://avatars.githubusercontent.com/u/170880534?v=4",
+    github: "https://github.com/Deepanprasath23",
+    linkedin: "https://www.linkedin.com/in/deepan-prasath-812508257?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_apph"
+  }
+
+];
+
 
   const technologies = [
     { name: "React 19.1.1", icon: "⚛️" },
