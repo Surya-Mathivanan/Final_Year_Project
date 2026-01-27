@@ -117,6 +117,15 @@ class FaceDetector:
             # Control frame rate (~20 FPS)
             time.sleep(0.05)
     
+    def get_face_status(self):
+        """
+        Get current face detection status
+        Returns: dict with face_detected boolean
+        """
+        return {
+            "face_detected": self.face_detected
+        }
+    
     def release(self):
         """Release camera resources"""
         if self.camera is not None:

@@ -1,0 +1,82 @@
+LLM-Powered Cognitive Interview Assistant - Technical Explanation
+
+1. Project Overview
+-------------------
+This project is an advanced AI-driven interview platform designed to conduct automated, personalized technical and behavioral interviews. It leverages Google's Gemini 1.5 Flash Large Language Model (LLM) to analyze resumes, generate context-aware questions, and provide comprehensive feedback on candidate performance. The system supports two primary modes: Resume-Based (personalized to the candidate's profile) and Role-Based (standardized for specific job titles).
+
+2. Technical Architecture
+-------------------------
+- **Frontend:** React + Vite (Modern, fast UI with dynamic components)
+- **Backend:** Flask (Python) with SQLAlchemy (SQLite database)
+- **AI Engine:** Google Gemini 1.5 Flash (via `google-genai` SDK)
+- **PDF Processing:** `pdfplumber` for robust text extraction
+- **Speech Recognition:** Web Speech API (Frontend) for voice answers
+
+3. Detailed Process Flow
+------------------------
+
+A. Data Fetching & Resume Processing (How the API fetches data)
+   - **Entry Point:** `/api/upload-resume`
+   - **Process:**
+     1. **Text Extraction:** When a PDF is uploaded, the backend uses `pdfplumber` to extract raw text content.
+     2. **Hybrid Analysis Engine (`resume_analyzer.py`):**
+        - **Pattern Matching (Regex):** The system first runs fast, rule-based extraction against a predefined dictionary of hundreds of technical skills (languages, frameworks, tools) and soft skills to define a baseline.
+        - **LLM Extraction (Gemini):** The raw text is simultaneously sent to Gemini with a specialized prompt to "intelligently" extract structured data. This catches nuanced details like project descriptions, experience levels, and implied soft skills that regex might miss.
+     3. **Data Fusion:** The results are merged. The system prioritizes the LLM's deep understanding for complex fields (like Project Summaries) while using the Regex match for high-precision keyword tagging.
+
+B. Question Generation Logic
+   - **Entry Point:** `/api/generate-questions`
+   - **Logic (`question_generator.py`):**
+     - **Context Building:** The system constructs a context window based on the extracted data.
+       - *For Resume Mode:* It injects the specific "Technical Skills" (top 15), "Soft Skills" (top 8), and "Project Summaries" (top 5) into the prompt.
+       - *For Role Mode:* It injects standard industry requirements for the selected role (e.g., "Frontend Developer").
+     - **Prompt Engineering:**
+       - The LLM is instructed to act as an "Expert Technical Interviewer."
+       - It generates questions in three distinct categories:
+         1. **Technical:** tailored to the specific stack found in the resume (e.g., "How have you used Redux in your React projects?").
+         2. **HR / Behavioral:** focusing on soft skills using the STAR method (e.g., "Describe a time you demonstrated leadership...").
+         3. **Project & Situational:** deep-diving into the specific projects listed in the resume (e.g., "What was the most challenging technical hurdle in your 'E-commerce' project?").
+     - **Output:** The LLM returns a structured JSON array of questions, which is validated and stored in the database session.
+
+C. Interview Session & Data Collection
+   - **Frontend Interaction:** The `InterviewSession.jsx` component renders questions one by one.
+   - **Input Methods:** Users can type answers or use the integrated Speech-to-Text feature (Web Speech API) to speak their responses.
+   - **Submission:** Answers are submitted in real-time to `/api/submit-answer`, which updates the session state in the database.
+
+D. Evaluation & Dashboard Logic (How it evaluates everything)
+   - **Entry Point:** `/api/complete-interview`
+   - **The Evaluation Engine (`app.py` -> `generate_interview_feedback`):**
+     1. **Session Compilation:** The backend aggregates the entire interview transcript (all Questions paired with User Answers).
+     2. **LLM Evaluation:** This full transcript is sent to Gemini with a complex "System System" prompt. The LLM acts as a "Senior Career Coach & HR Specialist."
+     3. **Scoring Criteria:**
+        - **Technical Performance (0-100):** Accuracy of technical claims, depth of knowledge, problem-solving approach.
+        - **HR Performance (0-100):** Communication clarity, STAR method usage, professionalism.
+        - **Cultural Fit (0-100):** Alignment with collaborative values, adaptability, and growth mindset.
+     4. **Structured Feedback:** The LLM does not just give a score; it generates specific lists of:
+        - **Strengths:** "What you excelled at."
+        - **Improvements:** "Growth opportunities."
+        - **Detailed Analysis:** A comprehensive paragraph summary.
+   - **Dashboard Visualization (`FeedbackDashboard.jsx`):**
+     - The frontend receives this JSON data.
+     - Custom SVG **Pie Charts** visualize the scores dynamically.
+     - The feedback lists are rendered as clear, actionable bullet points.
+     - This provides the user with an immediate, graded report card of their performance.
+
+4. Real-time Face Detection & Monitoring
+----------------------------------------
+   - **Purpose:** Ensures the integrity of the interview process by verifying the candidate's presence.
+   - **Backend Implementation (`face_detector.py`):**
+     - Uses **OpenCV** and Haar Cascade Classifiers to detect frontal faces in real-time.
+     - Operates on a separate thread to capture frames from the user's webcam.
+     - Performs binary detection:
+       - **Green State:** Face detected (Candidate present).
+       - **Red State:** "NO FACE DETECTED" warning (Candidate missing/obscured).
+     - Streams processed video frames via an MJPEG (Motion JPEG) feed to the frontend.
+   - **Frontend Integration (`FaceDetectionWidget.jsx`):**
+     - Embeds the live video stream directly into the interview interface.
+     - Provides immediate visual feedback to the user regarding their camera status.
+   - **Note on Gestures:** Currently, the system focuses strictly on **Presence Detection**. Advanced analysis such as emotion recognition, gaze tracking, or specific facial gestures is not yet implemented but can be added as a future enhancement using deep learning models.
+
+5. Unique Value
+---------------
+Unlike static interview bots, this system "reads" the candidate's actual resume to ask relevant questions, effectively simulating a real human interviewer who has reviewed the candidate's file. The evaluation is not keyword-based but semantic, meaning it understands the *meaning* and *quality* of the answers, not just if they said the right words.

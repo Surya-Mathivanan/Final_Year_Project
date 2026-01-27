@@ -284,6 +284,19 @@ def video_feed():
         print(f"Error in video feed: {e}")
         return jsonify({"error": "Video feed failed"}), 500
 
+@app.route('/api/face-status')
+@login_required
+def face_status():
+    """Get current face detection status"""
+    try:
+        from face_detector import detector
+        status = detector.get_face_status()
+        return jsonify(status)
+    except Exception as e:
+        print(f"Error getting face status: {e}")
+        return jsonify({"face_detected": True}), 200  # Default to true to avoid false alarms
+
+
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def logout():
